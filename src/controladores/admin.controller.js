@@ -2,7 +2,6 @@
 
 const usuarioModel = require('../modelos/usuario.model');
 const bcrypt = require("bcrypt-nodejs");
-const jwt = require('../servicios/jwt');
 
 function registrarUsuario(req, res)  {
     var user = new usuarioModel();
@@ -64,6 +63,9 @@ function editarCliente  (req, res){
     delete params.password;
     delete params.rol;  
     if (req.user.rol === 'ROL_ADMIN') {
+        if (clienteID != 'ROL_CLIENTE'){
+            return res.status(404).send({ mensaje: 'No puedes editar este tipo de Rol'})
+        }
         usuarioModel.findByIdAndUpdate(clienteID, params, { new: true }, (err, actualizarCliente) => {
         if (err) return res.status(404).send({ mensaje: 'Error en la peticion editar cliente' });
         if (!actualizarCliente) return res.status(404).send({ mensaje: 'No se ha podido actualizar este cliente' });
@@ -87,6 +89,8 @@ function eliminarCliente (req, res){
     })
 
 }
+
+
 
 module.exports = {
     registrarUsuario,
