@@ -34,6 +34,37 @@ function registrarCategoria (req, res)  {
 }
 
 
+//FASE DE PRUEBAS
+function obtenerCategorias (req, res){
+    var usuarioID = req.params.id;
+    if (req.user.rol != 'ROL_ADMIN') return res.status(404).send({ mensaje: 'No tienes permisos para obtener categorias'})
+    categoriaModel.find({ _id: usuarioID}, {"categorias":1},(err, encontrarCategoria)=>{
+        if(err) return res.status(404).send({ mensaje: 'Error en la peticion'});
+        if(!encontrarCategoria) return res.status(404).send({ mensaje: 'No se han encontrado empleados'});
+        return res.status(200).send({encontrarCategoria});
+    })
+}
+
+function editarCategoria  (req, res){
+    var categoriaID = req.params.categoriaID;
+    var params = req.body;
+    if (req.user.rol === 'ROL_ADMIN') {
+        categoriaModel.findByIdAndUpdate(categoriaID, params, { new: true }, (err, actualizarCategoria) => {
+        if (err) return res.status(404).send({ mensaje: 'Error en la peticion editar categoria' });
+        if (!actualizarCategoria) return res.status(404).send({ mensaje: 'No se ha podido actualizar esta categoria' });
+        return res.status(200).send({ actualizarCategoria });
+    })
+    } else {
+        return res.status(404).send({ mensaje: 'No tienes permisos para editar Categoria'})
+    }
+    
+}
+
+
+
+
 module.exports = {
-    registrarCategoria
+    registrarCategoria,
+    obtenerCategorias,
+    editarCategoria
 }
