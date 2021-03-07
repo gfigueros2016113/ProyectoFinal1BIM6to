@@ -57,7 +57,7 @@ function registrarCliente(req, res)  {
             })
         }
     } else {
-        res.status(404).send({ mensaje: 'No tienes permiso para registrar un rol' })
+        res.status(404).send({ mensaje: 'No tienes permiso para registrar este rol' })
     }
 }
 

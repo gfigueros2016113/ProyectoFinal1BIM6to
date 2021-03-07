@@ -2,6 +2,7 @@
 
 const usuarioModel = require('../modelos/usuario.model');
 const bcrypt = require("bcrypt-nodejs");
+const jwt = require('../servicios/jwt');
 
 function registrarUsuario(req, res)  {
     var user = new usuarioModel();
