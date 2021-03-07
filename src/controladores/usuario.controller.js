@@ -96,6 +96,5 @@ function registrarUsuario(req, res)  {
 
 module.exports = {
     loginUsuario,
-    registrarCliente,
-    registrarUsuario
+    registrarCliente
 }
