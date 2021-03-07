@@ -37,6 +37,60 @@ function registrarUsuario(req, res)  {
     }
 }
 
+function editarRol  (req, res){
+    var clienteID = req.params.clienteID;
+    var params = req.body;
+    delete params.usuario;
+    delete params.password;
+    if (req.user.rol === 'ROL_ADMIN') {
+    if(params.rol === 'ROL_ADMIN' || params.rol === 'ROL_CLIENTE'){
+        usuarioModel.findByIdAndUpdate(clienteID, params, { new: true }, (err, actualizarCliente) => {
+        if (err) return res.status(404).send({ mensaje: 'Error en la peticion editar cliente' });
+        if (!actualizarCliente) return res.status(404).send({ mensaje: 'No se ha podido actualizar este cliente' });
+        return res.status(200).send({ actualizarCliente });
+    })
+    }else{
+        return res.status(404).send({ mensaje: 'Este tipo de Rol no existe'})
+    }
+    } else {
+        return res.status(404).send({ mensaje: 'No tienes permisos para editar Cliente'})
+    }
+    
+}
+
+function editarCliente  (req, res){
+    var clienteID = req.params.clienteID;
+    var params = req.body;
+    delete params.password;
+    delete params.rol;  
+    if (req.user.rol === 'ROL_ADMIN') {
+        usuarioModel.findByIdAndUpdate(clienteID, params, { new: true }, (err, actualizarCliente) => {
+        if (err) return res.status(404).send({ mensaje: 'Error en la peticion editar cliente' });
+        if (!actualizarCliente) return res.status(404).send({ mensaje: 'No se ha podido actualizar este cliente' });
+        return res.status(200).send({ actualizarCliente });
+    })
+    } else {
+        return res.status(404).send({ mensaje: 'No tienes permisos para editar Cliente'})
+    }
+    
+}
+
+function eliminarCliente (req, res){
+    var clienteID = req.params.clienteID;
+    if(req.user.rol != 'ROL_ADMIN'){
+        return res.status(404).send({ mensaje: 'No tienes permisos para eliminar clientes'})
+    }
+    usuarioModel.findByIdAndDelete(clienteID, (err, eliminarCliente) => {
+        if(err) return res.status(404).send({ mensaje: 'Error en la periticion eliminar Cliente'});
+        if(!eliminarCliente) return res.status(404).send({ mensaje: 'No se ha podido eliminar el cliente'});
+        return res.status(200).send({ mensaje: 'Cliente eliminado'})
+    })
+
+}
+
 module.exports = {
-    registrarUsuario
+    registrarUsuario,
+    editarRol,
+    eliminarCliente,
+    editarCliente
 }
