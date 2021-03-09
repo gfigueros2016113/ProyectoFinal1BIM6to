@@ -7,6 +7,8 @@ var api = express.Router();
 
 api.post('/loginUsuario', usuarioController.loginUsuario);
 api.post('/registrarCliente', md_authenticated.ensureAuth,usuarioController.registrarCliente);
+api.put('/editarPerfil/:clienteID', md_authenticated.ensureAuth,usuarioController.editarPerfil);
+api.delete('/eliminarCuenta/:clienteID', md_authenticated.ensureAuth,usuarioController.eliminarCuenta);
 
 
 module.exports = api;

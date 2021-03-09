@@ -34,11 +34,9 @@ function registrarCategoria (req, res)  {
 }
 
 
-//FASE DE PRUEBAS
 function obtenerCategorias (req, res){
-    var usuarioID = req.params.id;
     if (req.user.rol != 'ROL_ADMIN') return res.status(404).send({ mensaje: 'No tienes permisos para obtener categorias'})
-    categoriaModel.find({ _id: usuarioID}, {"categorias":1},(err, encontrarCategoria)=>{
+    categoriaModel.find((err, encontrarCategoria)=>{
         if(err) return res.status(404).send({ mensaje: 'Error en la peticion'});
         if(!encontrarCategoria) return res.status(404).send({ mensaje: 'No se han encontrado empleados'});
         return res.status(200).send({encontrarCategoria});
@@ -62,9 +60,22 @@ function editarCategoria  (req, res){
 
 
 
+function eliminarCategoria (req, res){
+    var categoriaID = req.params.categoriaID;
+    if(req.user.rol != 'ROL_ADMIN'){
+        return res.status(404).send({ mensaje: 'No tienes permisos para eliminar categorias'})
+    }
+    categoriaModel.findByIdAndDelete(categoriaID, (err, eliminarCategoria) => {
+        if(err) return res.status(404).send({ mensaje: 'Error en la periticion eliminar Categoria'});
+        if(!eliminarCategoria) return res.status(404).send({ mensaje: 'No se ha podido eliminar la categoria'});
+        return res.status(200).send({ mensaje: 'Categoria Eliminada'})
+    })
+
+}
 
 module.exports = {
     registrarCategoria,
     obtenerCategorias,
-    editarCategoria
+    editarCategoria,
+    eliminarCategoria
 }
