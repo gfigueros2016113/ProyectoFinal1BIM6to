@@ -38,7 +38,7 @@ function obtenerCategorias (req, res){
     if (req.user.rol != 'ROL_ADMIN') return res.status(404).send({ mensaje: 'No tienes permisos para obtener categorias'})
     categoriaModel.find((err, encontrarCategoria)=>{
         if(err) return res.status(404).send({ mensaje: 'Error en la peticion'});
-        if(!encontrarCategoria) return res.status(404).send({ mensaje: 'No se han encontrado empleados'});
+        if(!encontrarCategoria) return res.status(404).send({ mensaje: 'No se han encontrado categorias'});
         return res.status(200).send({encontrarCategoria});
     })
 }
@@ -61,7 +61,7 @@ function editarCategoria  (req, res){
 
 
 function eliminarCategoria (req, res){
-    var categoriaID = req.params.categoriaID;
+    var categoriaID = req.params.categoID;
     if(req.user.rol != 'ROL_ADMIN'){
         return res.status(404).send({ mensaje: 'No tienes permisos para eliminar categorias'})
     }

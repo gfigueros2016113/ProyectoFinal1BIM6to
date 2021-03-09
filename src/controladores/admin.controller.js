@@ -84,7 +84,7 @@ function eliminarCliente (req, res){
         return res.status(404).send({ mensaje: 'No tienes permisos para eliminar clientes'})
     }
     usuarioModel.findByIdAndDelete(clienteID, (err, eliminarCliente) => {
-        if(err) return res.status(404).send({ mensaje: 'Error en la periticion eliminar Cliente'});
+        if(err) return res.status(404).send({ mensaje: 'Error en la peticion eliminar Cliente'});
         if(!eliminarCliente) return res.status(404).send({ mensaje: 'No se ha podido eliminar el cliente'});
         return res.status(200).send({ mensaje: 'Cliente eliminado'})
     })

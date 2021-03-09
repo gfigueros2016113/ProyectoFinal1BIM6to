@@ -1,5 +1,6 @@
 'use strict'
 const usuarioModel = require('../modelos/usuario.model');
+const productoModel = require('../modelos/producto.model');
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require('../servicios/jwt');
 const { Query } = require('mongoose');
@@ -96,9 +97,20 @@ function eliminarCuenta (req, res){
         return res.status(404).send({mensaje: 'no tienes permisos para eliminar cuenta'})
     }
 }
+
+function obtenerProductoNombre (req, res){
+    var proNombre = req.params.proNombre;
+    if (req.user.rol != 'ROL_CLIENTE') return res.status(404).send({ mensaje: 'No tienes permisos para obtener Productos' })
+    productoModel.findOne({producto: proNombre}, (err, encontrarProducto) => {
+        if (err) return res.status(404).send({ mensaje: 'Error en la peticion' });
+        if (!encontrarProducto) return res.status(404).send({ mensaje: 'Este producto no existe' });
+        return res.status(200).send(encontrarProducto);
+    })
+}
 module.exports = {
     loginUsuario,
     registrarCliente,
     editarPerfil,
-    eliminarCuenta
+    eliminarCuenta,
+    obtenerProductoNombre
 }
