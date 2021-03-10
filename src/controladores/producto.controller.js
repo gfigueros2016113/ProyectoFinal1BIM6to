@@ -16,9 +16,11 @@ function registrarProducto (req, res){
     prod.precio = params.precio;
     prod.vendido = 0;
     prod.categoria = categoriaID;
-    productoModel.find({productoModel: prod.productoModel},(err, encontrarProducto)=> {
+    productoModel.find({
+        $or: [{producto: prod.producto}]
+        }).exec((err, encontrarProducto)=> {
         if(err) return res.status(404).send({ mensaje: 'Error en la peticion'});
-        if(encontrarProducto && encontrarProducto.length >= 1) return res.status(404).send({mensaje:'Este producto esta en existencia'});
+        if(encontrarProducto && encontrarProducto.length == 1) return res.status(404).send({mensaje:'Este producto esta en existencia'});
         prod.save((err, encontrarProducto) => {
             if(err) return res.status(404).send({mensaje: 'No se ha podido guardar el producto'});
             if(!encontrarProducto) return res.status(404).send({ mensaje: 'Error al registrar producto'})

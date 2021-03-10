@@ -1,6 +1,7 @@
 'use strict'
 const usuarioModel = require('../modelos/usuario.model');
 const productoModel = require('../modelos/producto.model');
+const categoriaModel = require('../modelos/categoria.model');
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require('../servicios/jwt');
 const { Query } = require('mongoose');
@@ -107,10 +108,33 @@ function obtenerProductoNombre (req, res){
         return res.status(200).send(encontrarProducto);
     })
 }
+
+function obtenerCategoriasExistentes (req, res){
+    if (req.user.rol != 'ROL_CLIENTE') return res.status(404).send({ mensaje: 'No tienes permisos para obtener categorias'});
+    categoriaModel.find((err, encontrarCategoria)=>{
+        if(err) return res.status(404).send({ mensaje: 'Error en la peticion'});
+        if(!encontrarCategoria) return res.status(404).send({ mensaje: 'No se han encontrado categorias'});
+        return res.status(200).send({encontrarCategoria});
+    })
+}
+
+function obtenerCatalogoCategoria (req, res){
+    var categoriaID = req.params.categoriaID;
+    if (req.user.rol != 'ROL_CLIENTE') return res.status(404).send({ mensaje: 'No tienes permisos para obtener categorias'});
+    productoModel.find({categoria: categoriaID}, (err, encontrarProducto) => {
+        if (err) return res.status(404).send({ mensaje: 'Error en la peticion' });
+        if (!encontrarProducto) return res.status(404).send({ mensaje: 'Este producto no existe' });
+        return res.status(200).send(encontrarProducto);
+    })
+
+}
+
 module.exports = {
     loginUsuario,
     registrarCliente,
     editarPerfil,
     eliminarCuenta,
-    obtenerProductoNombre
+    obtenerProductoNombre,
+    obtenerCategoriasExistentes,
+    obtenerCatalogoCategoria
 }
