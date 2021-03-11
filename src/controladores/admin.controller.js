@@ -2,7 +2,16 @@
 
 const usuarioModel = require('../modelos/usuario.model');
 const bcrypt = require("bcrypt-nodejs");
+const carritoModel = require('../modelos/carrito.model');
 const jwt = require('../servicios/jwt');
+
+function crearCarrito(usuarioID){
+    var carrito = new carritoModel();
+    carrito.listaProducto =[]
+    carrito.usuarioCarrito = usuarioID;
+    carrito.total = 0;
+    carrito.save();
+}
 
 function registrarUsuario(req, res)  {
     var user = new usuarioModel();
@@ -22,8 +31,10 @@ function registrarUsuario(req, res)  {
                     bcrypt.hash(params.password, null, null, (err, passwordEncriptada) => {
                         user.password = passwordEncriptada;
                         user.save((err, usuarioGuardado) => {
-                            if (usuarioGuardado) {
-                                 res.status(300).send(usuarioGuardado)
+                            if (usuarioGuardado.rol = 'ROL_CLIENTE') {
+                                    crearCarrito(usuarioGuardado._id);
+                                
+                                 return res.status(300).send(usuarioGuardado)
                             } else {
                                  res.status(404).send({ mensaje: 'Este usuario no ha podido registrarse' })
                             }

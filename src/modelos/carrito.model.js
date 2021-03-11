@@ -1,14 +1,16 @@
 'use strict'
-const mongoose = require;
+const mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var CarritoSchema = Schema({
-    usuario: {type: Schema.Types.ObjectId, ref:'usuario'},
-    productoCarrito: [{
-        producto: {type: Schema.Types.ObjectId, ref:'producto'},
+    listaProducto: [{
         cantidad: Number,
-        subTotal: Number
-    }]
+        precio: Number,
+        subTotal: Number,
+        productoID: {type: Schema.Types.ObjectId, ref:'producto'}
+    }],
+    usuarioCarrito: {type: Schema.Types.ObjectId, ref:'usuario'},
+    total: Number
 })
 
 module.exports = mongoose.model('carritos', CarritoSchema);

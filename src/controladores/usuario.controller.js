@@ -2,6 +2,7 @@
 const usuarioModel = require('../modelos/usuario.model');
 const productoModel = require('../modelos/producto.model');
 const categoriaModel = require('../modelos/categoria.model');
+const carritoModel = require('../modelos/carrito.model');
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require('../servicios/jwt');
 const { Query } = require('mongoose');
@@ -31,10 +32,17 @@ function loginUsuario (req, res)  {
     })
 }
 
+function crearCarrito(usuarioID){
+    var carrito = new carritoModel();
+    carrito.listaProducto =[]
+    carrito.usuarioCarrito = usuarioID;
+    carrito.total = 0;
+    carrito.save();
+}
+
 function registrarCliente(req, res)  {
     var user = new usuarioModel();
     var params = req.body;
-  
     if(req.user.rol === 'ROL_CLIENTE'){    
     if (params.usuario && params.password) {
             user.usuario = params.usuario;
@@ -51,6 +59,7 @@ function registrarCliente(req, res)  {
                         user.save((err, usuarioGuardado) => {
                             if (usuarioGuardado) {
                                  res.status(300).send(usuarioGuardado)
+                                 crearCarrito(usuarioGuardado._id)
                             } else {
                                  res.status(404).send({ mensaje: 'Este usuario no ha podido registrarse' })
                             }
