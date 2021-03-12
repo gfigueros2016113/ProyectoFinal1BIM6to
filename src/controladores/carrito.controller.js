@@ -13,7 +13,6 @@ function agregarProductoCarrito(req, res){
     if(req.user.rol != 'ROL_CLIENTE') return res.status(404).send({mensaje: 'No tienes permisos para agregar productos'});
     productoModel.findById(productoID).exec((err, encontrarProducto)=>{
         if(err) return res.status(404).send({mensaje:'Error en la peticion 1'})
-            console.log(encontrarProducto)
         if(encontrarProducto.stock < params.cantidad) return res.status(404).send({mensaje: 'No hay suficientes productos, compre menos'})
         if(!encontrarProducto) return res.status(404).send({ mensaje:'Error en la peticion 2'})
         if(encontrarProducto.stock == 0) return res.status(404).send({mensaje: 'No hay productos disponibles, hasta el viernes me traen'})
@@ -26,7 +25,7 @@ function agregarProductoCarrito(req, res){
                 if(err) return res.status(404).send({mensaje: 'Error en la peticion 3'})
                 if(!buscarProductos){
                     carritoModel.findOneAndUpdate({usuarioCarrito:req.user.sub}, {$push:{
-                        listaProducto:{cantidad:intCantidad, 
+                        listaProducto:{nombre:encontrarProducto.producto,cantidad:intCantidad, 
                             precio:encontrarProducto.precio, subTotal:subTotalFinal, productoID:productoID}}},
                         {new:true, useFindAndModify:false}, (err, productoAgregado) =>{
                             if(err) return res.status(404).send({mensaje: 'Error en la peticion 4'})
@@ -52,8 +51,8 @@ function agregarProductoCarrito(req, res){
                         var productoListID = productoList[valor].productoID;
 
                             if(req.params.productoID == productoListID){
-                                productoList.forEach(function(element)  {
-                                    if(element.productoID == productoID){
+                                var cantidadSuma = cantidadList+intCantidad
+                                if(cantidadSuma > encontrarProducto.stock) return res.status(404).send({mensaje: 'No hay tantos productos en existencia'})
                                         carritoModel.findOneAndUpdate({usuarioCarrito:req.user.sub, "listaProducto.productoID":productoID},
                                         {"listaProducto.$.cantidad":intCantidad+cantidadList,"listaProducto.$.subTotal":subTotalList+subTotalFinal},
                                         (err,productoAgregado)=>{
@@ -63,10 +62,7 @@ function agregarProductoCarrito(req, res){
                                             var intParam = parseInt(params.cantidad,10);
                                             carritoModel.findOneAndUpdate({usuarioCarrito:req.user.sub, "listaProducto.productoID":productoID},
                                             {total:total +(intParam*precio)},{new:true},(err,actualizar)=>{return res.status(200).send({Carrito:actualizar});})
-                                        })
-                                        
-                                    }
-                                })
+                                        })      
                             }else{
                                 console.log('Error')
                             }

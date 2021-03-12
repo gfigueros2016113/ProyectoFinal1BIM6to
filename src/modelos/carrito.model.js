@@ -4,6 +4,7 @@ var Schema = mongoose.Schema;
 
 var CarritoSchema = Schema({
     listaProducto: [{
+        nombre: String,
         cantidad: Number,
         precio: Number,
         subTotal: Number,

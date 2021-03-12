@@ -6,6 +6,7 @@ const carritoModel = require('../modelos/carrito.model');
 const bcrypt = require("bcrypt-nodejs");
 const jwt = require('../servicios/jwt');
 const { Query } = require('mongoose');
+const facturaModel = require('../modelos/factura.model');
 
 function loginUsuario (req, res)  {
     var params = req.body;
@@ -18,6 +19,41 @@ function loginUsuario (req, res)  {
                         return res.status(200).send({
                             token: jwt.createToken(encontrarUsuario)
                         });
+                    } else {
+                        encontrarUsuario.password = undefined;
+                        return res.status(200).send({ encontrarUsuario })
+                    }
+                    } else {
+                        return res.status(404).send({ mensaje: 'El usuario no se ha encontrado' })
+                  }
+            })
+        } else {
+            return res.status(404).send({ mensaje: 'El usuario no ha podido ingresar' })
+        }
+    })
+}
+
+function loginUsuarioFactura (req, res)  {
+    var params = req.body;
+    usuarioModel.findOne({ usuario: params.usuario }, (err, encontrarUsuario) => {
+        if (err) return res.status(500).send({ mensaje: 'Error en la petición de Login' });
+        if (encontrarUsuario) {
+            bcrypt.compare(params.password, encontrarUsuario.password, (err, passwordCorrecta) => {
+                if (passwordCorrecta) {
+                    if (params.getToken === 'true') {
+                        if(encontrarUsuario.rol == 'ROL_ADMIN'){
+                            return res.status(200).send({
+                                token: jwt.createToken(encontrarUsuario)
+                            });
+                        } else if (encontrarUsuario.rol == 'ROL_CLIENTE'){
+                            facturaModel.find({usuarioCarrito:encontrarUsuario}, (err, encontrarFactura) =>{
+                                if (err) return res.status(200).send({ mensaje: 'Error en la peticion'});
+                                if (encontrarFactura.length == 0){
+                                    return res.status(200).send({ mensaje:`Detalle de ${encontrarUsuario.usuario}`, mensaje:"El usuario no tiene facturas" ,token: jwt.createToken(encontrarUsuario) });
+                                } 
+                                return res.status(200).send({mensaje: `Detalle de ${encontrarUsuario.usuario}`, encontrarFactura, token: jwt.createToken(encontrarUsuario)})
+                            })
+                        }
                     } else {
                         encontrarUsuario.password = undefined;
                         return res.status(200).send({ encontrarUsuario })
@@ -138,6 +174,15 @@ function obtenerCatalogoCategoria (req, res){
 
 }
 
+function obtenerCatalogoMasVendidos(req, res){
+    if(req.user.rol != 'ROL_CLIENTE') return res.status(404).send({mensaje:'No tienes permisos para ver productos mas vendidos'})
+        productoModel.find((err, encontrarProducto)=>{
+            if(err) return res.status(404).send({ mensaje:'Error en la peticion'})
+            if(!encontrarProducto) return res.status(404).send({mensaje: 'Error en la peticion'})
+            return res.status(200).send({productos: encontrarProducto});
+        }).sort({vendido: -1}).limit(10)
+}
+
 module.exports = {
     loginUsuario,
     registrarCliente,
@@ -145,5 +190,7 @@ module.exports = {
     eliminarCuenta,
     obtenerProductoNombre,
     obtenerCategoriasExistentes,
-    obtenerCatalogoCategoria
+    obtenerCatalogoCategoria,
+    loginUsuarioFactura,
+    obtenerCatalogoMasVendidos
 }

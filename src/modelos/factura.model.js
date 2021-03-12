@@ -1,14 +1,17 @@
 'use strict'
-const mongoose = require;
+const mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var FacturaSchema = Schema({
-    usuario: {type: Schema.Types.ObjectId, ref:'usuario'},
-    productoCarrito: [{
-        producto: {type: Schema.Types.ObjectId, ref:'producto'},
+    listaProducto: [{
+        nombre: String,
         cantidad: Number,
-        subTotal: Number
-    }]
+        precio: Number,
+        subTotal: Number,
+        productoID: {type: Schema.Types.ObjectId, ref:'producto'}
+    }],
+    usuarioCarrito: {type: Schema.Types.ObjectId, ref:'usuario'},
+    total: Number
 })
 
-module.exports = mongoose.model('factura', CarritoSchema);
+module.exports = mongoose.model('factura', FacturaSchema);
