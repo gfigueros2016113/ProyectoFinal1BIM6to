@@ -1,9 +1,8 @@
 'use strict'
 
 const productoModel = require('../modelos/producto.model');
-const bcrypt = require("bcrypt-nodejs");
-const jwt = require('../servicios/jwt');
 
+//Función para agregar un nuevo producto en la base de datos, Dentro de el la categoria a la que pertenecerá 
 function registrarProducto (req, res){
     var params = req.body;
     var categoriaID = req.params.categoriaID;
@@ -29,6 +28,7 @@ function registrarProducto (req, res){
     })
 }
 
+//Función para poder recibir un listado y visualizar todos los productos en la base de datos
 function obtenerListaProducto (req, res){
     if (req.user.rol != 'ROL_ADMIN') return res.status(404).send({ mensaje: 'No tienes permisos para obtener Productos'})
     productoModel.find((err, encontrarProducto)=>{
@@ -38,6 +38,7 @@ function obtenerListaProducto (req, res){
     })
 }
 
+//Función para obtener un producto en especifico
 function obtenerProducto (req, res){
     var proID = req.params.proID;
     if (req.user.rol != 'ROL_ADMIN') return res.status(404).send({ mensaje: 'No tienes permisos para obtener el Producto' })
@@ -48,6 +49,7 @@ function obtenerProducto (req, res){
     })
 }
 
+//Función para poder editar un producto
 function editarProducto (req, res){
     var proID = req.params.proID;
     var params = req.body;
@@ -63,6 +65,7 @@ function editarProducto (req, res){
     }    
 }
 
+//Función para poder editar el stock de un producto en especifico
 function editarStock (req, res){
     var proID = req.params.proID;
     var params = req.body;
@@ -81,6 +84,7 @@ function editarStock (req, res){
     }
 }
 
+//Función para editar un producto
 function eliminarProducto (req, res){
     var proID = req.params.proID;
     if(req.user.rol != 'ROL_ADMIN'){

@@ -1,14 +1,12 @@
 'use strict'
 
 const categoriaModel = require("../modelos/categoria.model");
-const bcrypt = require("bcrypt-nodejs");
-const jwt = require('../servicios/jwt');
 const productoModel = require("../modelos/producto.model");
 
+//Función para poder agregar una nueva categoria a la base de datos
 function registrarCategoria (req, res)  {
     var cat = new categoriaModel();
     var params = req.body;
-  
     if(req.user.rol === 'ROL_ADMIN'){    
     if (params.categoria) {
             cat.categoria = params.categoria;
@@ -34,7 +32,7 @@ function registrarCategoria (req, res)  {
     }
 }
 
-
+//Función para obtener un listado y visualizar las categorias en la base de datos
 function obtenerCategorias (req, res){
     if (req.user.rol != 'ROL_ADMIN') return res.status(404).send({ mensaje: 'No tienes permisos para obtener categorias'})
     categoriaModel.find((err, encontrarCategoria)=>{
@@ -44,6 +42,7 @@ function obtenerCategorias (req, res){
     })
 }
 
+//Función para poder editar una categoria
 function editarCategoria  (req, res){
     var categoriaID = req.params.categoriaID;
     var params = req.body;
@@ -55,10 +54,11 @@ function editarCategoria  (req, res){
     })
     } else {
         return res.status(404).send({ mensaje: 'No tienes permisos para editar Categoria'})
-    }
-    
+    }  
 }
 
+//Esta Función nos servirá para poder crear una categoria por default a la que se irán todos los productos
+//pertenecientes a una categoria eliminada.
 function categoriaDefault (req, res){
 var categoriaID = 'Default';
     var cat = new categoriaModel();
@@ -80,6 +80,7 @@ var categoriaID = 'Default';
     })
 }
 
+//Función para Eliminar una categoria de la base de datos
 function eliminarCategoria (req, res){
     if(req.user.rol === 'ROL_ADMIN'){
     var categoriaID = req.params.categoriaID;
@@ -89,6 +90,7 @@ function eliminarCategoria (req, res){
             if(err) return res.status(404).send({ mensaje: 'Error en la periticion eliminar Categoria'});
             productoModel.find({categoria: categoriaID}).exec((err, encontrarProducto)=>{
                 encontrarProducto.forEach((nuevaCategoria)=>{
+                    //Validacion para que lo productos pertencientes pasen a una categoria por default
                     productoModel.findByIdAndUpdate(nuevaCategoria._id,{categoria:categoriaDefault},(err,Actualizar)=>{
                         if(!eliminarCategoria) return res.status(404).send({ mensaje: 'No se ha podido eliminar la categoria'});   
                     })  

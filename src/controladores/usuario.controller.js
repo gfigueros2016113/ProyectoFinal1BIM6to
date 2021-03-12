@@ -1,4 +1,5 @@
 'use strict'
+//Funciones para usuarios CLIENTE
 const usuarioModel = require('../modelos/usuario.model');
 const productoModel = require('../modelos/producto.model');
 const categoriaModel = require('../modelos/categoria.model');
@@ -8,6 +9,7 @@ const jwt = require('../servicios/jwt');
 const { Query } = require('mongoose');
 const facturaModel = require('../modelos/factura.model');
 
+//Función para iniciar sesión con un usuario y obtener su token
 function loginUsuario (req, res)  {
     var params = req.body;
     usuarioModel.findOne({ usuario: params.usuario }, (err, encontrarUsuario) => {
@@ -33,6 +35,7 @@ function loginUsuario (req, res)  {
     })
 }
 
+//Función para iniciar sesión con un usuario, ademas del token obtendrá todas las facturas a su nombre
 function loginUsuarioFactura (req, res)  {
     var params = req.body;
     usuarioModel.findOne({ usuario: params.usuario }, (err, encontrarUsuario) => {
@@ -68,6 +71,7 @@ function loginUsuarioFactura (req, res)  {
     })
 }
 
+//Esta función nos permitirá crear un carrito que pertencerá a un cliente en especifico para poder realizar sus compras
 function crearCarrito(usuarioID){
     var carrito = new carritoModel();
     carrito.listaProducto =[]
@@ -75,7 +79,7 @@ function crearCarrito(usuarioID){
     carrito.total = 0;
     carrito.save();
 }
-
+//Esta función nos permitirá crear un usuario y asignarle automaticamente el rol CLIENTE y establecer un carrito de compras
 function registrarCliente(req, res)  {
     var user = new usuarioModel();
     var params = req.body;
@@ -108,7 +112,7 @@ function registrarCliente(req, res)  {
         res.status(404).send({ mensaje: 'No tienes permiso para registrar este rol' })
     }
 }
-
+//Función para editar el propio perfil de la persona con sesión iniciada
 function editarPerfil (req, res){
     var clienteID = req.params.clienteID;
     var params = req.body;
@@ -128,6 +132,7 @@ function editarPerfil (req, res){
     }
 }
 
+//Función para eliminar la propia cuenta de la persona con sesión iniciada
 function eliminarCuenta (req, res){
     var clienteID = req.params.clienteID;
     if (clienteID != req.user.sub) {
@@ -144,6 +149,7 @@ function eliminarCuenta (req, res){
     }
 }
 
+//Función para poder obtener un PRODUCTO buscadolo por el Nombre
 function obtenerProductoNombre (req, res){
     var proNombre = req.params.proNombre;
     if (req.user.rol != 'ROL_CLIENTE') return res.status(404).send({ mensaje: 'No tienes permisos para obtener Productos' })
@@ -154,6 +160,7 @@ function obtenerProductoNombre (req, res){
     })
 }
 
+//Función para obtener un listado y visualizar todas las categorias existentes
 function obtenerCategoriasExistentes (req, res){
     if (req.user.rol != 'ROL_CLIENTE') return res.status(404).send({ mensaje: 'No tienes permisos para obtener categorias'});
     categoriaModel.find((err, encontrarCategoria)=>{
@@ -163,6 +170,7 @@ function obtenerCategoriasExistentes (req, res){
     })
 }
 
+//Función para obtener un CÁTALOGO que nos permita ver las categorias existentes
 function obtenerCatalogoCategoria (req, res){
     var categoriaID = req.params.categoriaID;
     if (req.user.rol != 'ROL_CLIENTE') return res.status(404).send({ mensaje: 'No tienes permisos para obtener categorias'});
@@ -171,9 +179,9 @@ function obtenerCatalogoCategoria (req, res){
         if (!encontrarProducto) return res.status(404).send({ mensaje: 'Este producto no existe' });
         return res.status(200).send(encontrarProducto);
     })
-
 }
 
+//Función para obtener un CÁTALOGO que nos permita ver los productos más vendidos
 function obtenerCatalogoMasVendidos(req, res){
     if(req.user.rol != 'ROL_CLIENTE') return res.status(404).send({mensaje:'No tienes permisos para ver productos mas vendidos'})
         productoModel.find((err, encontrarProducto)=>{
@@ -181,6 +189,18 @@ function obtenerCatalogoMasVendidos(req, res){
             if(!encontrarProducto) return res.status(404).send({mensaje: 'Error en la peticion'})
             return res.status(200).send({productos: encontrarProducto});
         }).sort({vendido: -1}).limit(10)
+}
+
+//Función para poder visualizar la FACTURA DETALLADA del usuario con sesión iniciada
+function facturaDetallada(req, res){
+    var facturaID = req.params.facturaID
+    if(req.user.rol != 'ROL_CLIENTE') return res.status(404).send({mensaje:'No tienes permisos para ver esta factura detallada'})
+    facturaModel.findById(facturaID).exec((err, encontrarFactura)=>{
+        if(err) return res.status(404).send({ mensaje: 'Error en la peticion'})
+        if(!encontrarFactura) return res.status(404).send({mensaje:'Error en la peticion'})
+        if(encontrarFactura.usuarioCarrito != req.user.sub) return res.status(404).send({ mensaje:'No tienes permisos para ver esta factura detallada'})
+        return res.status(200).send({'Facturas del Usuario':encontrarFactura})
+    })
 }
 
 module.exports = {
@@ -192,5 +212,6 @@ module.exports = {
     obtenerCategoriasExistentes,
     obtenerCatalogoCategoria,
     loginUsuarioFactura,
-    obtenerCatalogoMasVendidos
+    obtenerCatalogoMasVendidos,
+    facturaDetallada
 }

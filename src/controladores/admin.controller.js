@@ -1,10 +1,10 @@
 'use strict'
-
+//Funciones para usuarios ADMINISTRADORES
 const usuarioModel = require('../modelos/usuario.model');
 const bcrypt = require("bcrypt-nodejs");
 const carritoModel = require('../modelos/carrito.model');
-const jwt = require('../servicios/jwt');
 
+//Esta función nos permitirá crear un carrito que pertencerá a un cliente en especifico para poder realizar sus compras
 function crearCarrito(usuarioID){
     var carrito = new carritoModel();
     carrito.listaProducto =[]
@@ -13,10 +13,10 @@ function crearCarrito(usuarioID){
     carrito.save();
 }
 
+//Función para poder registrar un usuario, poder asignarle un rol y establecerle un carrito de compras
 function registrarUsuario(req, res)  {
     var user = new usuarioModel();
     var params = req.body;
-  
     if(req.user.rol === 'ROL_ADMIN'){    
     if (params.usuario && params.password) {
             user.usuario = params.usuario;
@@ -48,6 +48,7 @@ function registrarUsuario(req, res)  {
     }
 }
 
+//Función para poder editar el rol de un usuario
 function editarRol  (req, res){
     var clienteID = req.params.clienteID;
     var params = req.body;
@@ -65,10 +66,10 @@ function editarRol  (req, res){
     }
     } else {
         return res.status(404).send({ mensaje: 'No tienes permisos para editar Cliente'})
-    }
-    
+    }  
 }
 
+//Función para poder editar un usuario solamente si su rol es CLIENTE
 function editarCliente  (req, res){
     var clienteID = req.params.clienteID;
     var params = req.body;
@@ -86,9 +87,9 @@ function editarCliente  (req, res){
     } else {
         return res.status(404).send({ mensaje: 'No tienes permisos para editar Cliente'})
     }
-    
 }
 
+//Función para poder eliminar un usuario Cliente de la base de datos
 function eliminarCliente (req, res){
     var clienteID = req.params.clienteID;
     if(req.user.rol != 'ROL_ADMIN'){
@@ -99,7 +100,6 @@ function eliminarCliente (req, res){
         if(!eliminarCliente) return res.status(404).send({ mensaje: 'No se ha podido eliminar el cliente'});
         return res.status(200).send({ mensaje: 'Cliente eliminado'})
     })
-
 }
 
 
