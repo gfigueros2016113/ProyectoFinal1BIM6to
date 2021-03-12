@@ -89,6 +89,7 @@ function eliminarCategoria (req, res){
         categoriaModel.findByIdAndDelete(categoriaID, (err, eliminarCategoria) => {
             if(err) return res.status(404).send({ mensaje: 'Error en la periticion eliminar Categoria'});
             productoModel.find({categoria: categoriaID}).exec((err, encontrarProducto)=>{
+               console.log(encontrarProducto)
                 encontrarProducto.forEach((nuevaCategoria)=>{
                     //Validacion para que lo productos pertencientes pasen a una categoria por default
                     productoModel.findByIdAndUpdate(nuevaCategoria._id,{categoria:categoriaDefault},(err,Actualizar)=>{

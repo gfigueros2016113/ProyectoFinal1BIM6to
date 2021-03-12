@@ -31,13 +31,10 @@ function registrarUsuario(req, res)  {
                     bcrypt.hash(params.password, null, null, (err, passwordEncriptada) => {
                         user.password = passwordEncriptada;
                         user.save((err, usuarioGuardado) => {
-                            if (usuarioGuardado.rol = 'ROL_CLIENTE') {
-                                    crearCarrito(usuarioGuardado._id);
-                                
-                                 return res.status(300).send(usuarioGuardado)
-                            } else {
-                                 res.status(404).send({ mensaje: 'Este usuario no ha podido registrarse' })
+                            if (usuarioGuardado.rol == 'ROL_CLIENTE') {
+                                crearCarrito(usuarioGuardado._id);
                             }
+                            return res.status(300).send(usuarioGuardado)
                         })
                     })
                 }
@@ -75,18 +72,12 @@ function editarCliente  (req, res){
     var params = req.body;
     delete params.password;
     delete params.rol;  
-    if (req.user.rol === 'ROL_ADMIN') {
-        if (clienteID != 'ROL_CLIENTE'){
-            return res.status(404).send({ mensaje: 'No puedes editar este tipo de Rol'})
-        }
-        usuarioModel.findByIdAndUpdate(clienteID, params, { new: true }, (err, actualizarCliente) => {
-        if (err) return res.status(404).send({ mensaje: 'Error en la peticion editar cliente' });
-        if (!actualizarCliente) return res.status(404).send({ mensaje: 'No se ha podido actualizar este cliente' });
-        return res.status(200).send({ actualizarCliente });
-    })
-    } else {
-        return res.status(404).send({ mensaje: 'No tienes permisos para editar Cliente'})
-    }
+    if (req.user.rol != 'ROL_ADMIN') return res.status(404).send ({ mensaje: 'No tienes permisos para editar'})
+            usuarioModel.findOneAndUpdate({_id:clienteID, rol:'ROL_CLIENTE'}, {usuario:params.usuario},{ new: true, useFindAndModify:false }, (err, actualizarCliente) => {
+                if (err) return res.status(404).send({ mensaje: 'Error en la peticion editar cliente' });
+                if (!actualizarCliente) return res.status(404).send({ mensaje: 'Este usuario es un ADMIN' });
+                return res.status(200).send({ actualizarCliente });
+            })
 }
 
 //Función para poder eliminar un usuario Cliente de la base de datos

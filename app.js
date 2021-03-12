@@ -14,7 +14,6 @@ const categoriarutas = require('./src/rutas/categoria.rutas');
 const carritorutas = require('./src/rutas/carrito.rutas');
 const facturarutas = require('./src/rutas/factura.rutas');
 
-
 //MIDDLEWARES
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
